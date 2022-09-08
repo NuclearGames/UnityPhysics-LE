@@ -17,6 +17,12 @@ namespace NuclearGames.Physics_LE.Colliders.Interfaces {
         /// <para>Должна учитывать локальное смещение '<see cref="Transform"/>' объекта + смешение центра коллайдера относительно '<see cref="Transform"/>'</para>
         /// </summary>
         Vector3 LocalPosition { get; }
+        
+        /// <summary>
+        /// Локальное вращение коллайдера
+        /// <para>Как сам коллайдер повернут относительно тела</para>
+        /// </summary>
+        Quaternion LocalRotation { get; }
 
         /// <summary>
         /// Возвращает локальный тензор коллайдера

@@ -248,7 +248,7 @@ namespace NuclearGames.Physics_LE.Bodies {
                 Vector3 localColliderInertiaTensor = attachedCollider.GetLocalInertiaTensor(realMass);
                 
                 // Преобразуем локальный тензор инерции коллайдера в тензор тела
-                Matrix3x3 rotationMatrix = transform.rotation.GetMatrix();
+                Matrix3x3 rotationMatrix = attachedCollider.LocalRotation.GetMatrix();
                 Matrix3x3 rotationMatrixTranspose = rotationMatrix.GetTranspose();
                 rotationMatrixTranspose.MultiplyRow(0, localColliderInertiaTensor.x);
                 rotationMatrixTranspose.MultiplyRow(1, localColliderInertiaTensor.y);
