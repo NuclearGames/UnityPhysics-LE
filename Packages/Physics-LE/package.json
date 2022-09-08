@@ -1,0 +1,16 @@
+{
+  "name": "com.nuclear-games.physics-le",
+  "displayName": "Physics-LE",
+  "author": {
+    "name": "Nuclear-games"
+  },
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "description": "Provide LE version of Rigidbody. The main purpose: has another process to simulate physics",
+  "keywords": [
+    "physics",
+    "simulation",
+    "physics simulation"
+  ],
+  "unityRelease": "0f1"
+}
