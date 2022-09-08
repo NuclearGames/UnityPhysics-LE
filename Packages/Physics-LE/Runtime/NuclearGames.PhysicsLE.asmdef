@@ -1,0 +1,14 @@
+{
+    "name": "NuclearGames.PhysicsLE",
+    "rootNamespace": "NuclearGames.Physics_LE",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

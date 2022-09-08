@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.nuclear-games.physics-le": {
+      "version": "file:Physics-LE",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "5.0.9",
       "depth": 0,
