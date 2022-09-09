@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace NuclearGames.Physics_LE.Colliders.Interfaces {
-    internal interface ISimpleCollider {
+    public interface ISimpleCollider {
         /// <summary>
         /// Плотность материала коллайдера
         /// </summary>

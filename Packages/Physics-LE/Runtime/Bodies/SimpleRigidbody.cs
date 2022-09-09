@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NuclearGames.Physics_LE.Colliders.Interfaces;
 using NuclearGames.Physics_LE.Utils.Extensions;
@@ -81,6 +82,12 @@ namespace NuclearGames.Physics_LE.Bodies {
 
         public SimpleRigidbody(Transform transform) {
             _transform = transform;
+            _attachedColliders = new List<ISimpleCollider>();
+        }
+        
+        public SimpleRigidbody(Transform transform, IEnumerable<ISimpleCollider> colliders) {
+            _transform = transform;
+            _attachedColliders = new List<ISimpleCollider>(colliders);
         }
 
 #endregion
@@ -193,17 +200,15 @@ namespace NuclearGames.Physics_LE.Bodies {
                 // Cчитаем позици и угол поворота
                 UpdatePositionAndRotation(in deltaTime, 
                                           newLinearVelocity, newAngularVelocity, 
-                                          out Vector3 newPosition, out Quaternion newRotation);
+                                          out Vector3 newGlobalCenterOfMassPosition, out Quaternion newRotation);
                 
                 // Обновляем значения
-                UpdateBodyStates(in newLinearVelocity, in newAngularVelocity, in newPosition, in newRotation);
+                UpdateBodyStates(in newLinearVelocity, in newAngularVelocity, in newGlobalCenterOfMassPosition, newRotation);
 
+                // Сбарсываем все накопленные силы и моменты
+                ResetCache();
             }
         }
-
-        //ToDo: Цикл обновления:
-        // 4. Обновляем значения (updateBodiesState)
-        // 5. Сбарсываем все накопленные силы и моменты
 
 #endregion
 
@@ -264,13 +269,13 @@ namespace NuclearGames.Physics_LE.Bodies {
         private Matrix3x3 _inverseInertiaTensorGlobal;
 
         private readonly Transform _transform;
-        private ISimpleCollider[] _attachedColliders;
+        private readonly List<ISimpleCollider> _attachedColliders;
 
 #endregion
 
 #region Functions
 
-#region Update calculations
+#region Update cycle
 
         /// <summary>
         /// Вычисляет новые значения скоростей
@@ -292,14 +297,11 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// </summary>
         private void UpdatePositionAndRotation(in float deltaTime, 
             in Vector3 newLinearVelocity, in Vector3 newAngularVelocity,
-            out Vector3 newPosition, out Quaternion newRotation) {
+            out Vector3 newGlobalCenterOfMassPosition, out Quaternion newRotation) {
 
-            newPosition = newLinearVelocity;
-            Vector3Extensions.Scale(ref newPosition, in deltaTime);
-            //ToDo: В движке здесь за точку отсчета взят глобальный центр-масс.
-            // Но как мне видится, раз мы его считаем как локальный центр масс относительно tranform в мировой пространстве, 
-            //      то все должно быть норм
-            Vector3Extensions.Add(ref newPosition, _transform.position);
+            newGlobalCenterOfMassPosition = newLinearVelocity;
+            Vector3Extensions.Scale(ref newGlobalCenterOfMassPosition, in deltaTime);
+            Vector3Extensions.Add(ref newGlobalCenterOfMassPosition, GlobalCenterOfMass);
 
             newRotation = _transform.rotation;
             var tempRotation = QuaternionExtensions.New(0, in newAngularVelocity) * newRotation;
@@ -307,9 +309,28 @@ namespace NuclearGames.Physics_LE.Bodies {
             QuaternionExtensions.Add(ref newRotation, in tempRotation);
         }
 
-        private void UpdateBodyStates(in Vector3 newLinearVelocity, in Vector3 newAngularVelocity,
-            in Vector3 newPosition, in Quaternion newRotation) {
+        /// <summary>
+        /// Обновляем позиционирование 
+        /// </summary>
+        /// <param name="newLinearVelocity"></param>
+        /// <param name="newAngularVelocity"></param>
+        /// <param name="newGlobalCenterOfMassPosition"></param>
+        /// <param name="newRotation"></param>
+        private void UpdateBodyStates(in Vector3 newLinearVelocity, in Vector3 newAngularVelocity, in Vector3 newGlobalCenterOfMassPosition, Quaternion newRotation) {
+            Vector3Extensions.Add(ref _linearVelocity, in newLinearVelocity);
+            Vector3Extensions.Add(ref _angularVelocity, in newAngularVelocity);
             
+            newRotation.Normalize();
+            _transform.SetPositionAndRotation(newGlobalCenterOfMassPosition - newRotation * LocalCenterOfMass, 
+                                              newRotation);
+        }
+
+        /// <summary>
+        /// Сбрасывает все накопленные значения (силы и моменты вращения)
+        /// </summary>
+        private void ResetCache() {
+            _lastExternalForce = Vector3.zero;
+            _lastExternalTorque = Vector3.zero;
         }
 
 #endregion
@@ -347,7 +368,7 @@ namespace NuclearGames.Physics_LE.Bodies {
             // Вычисляем общую массу коллайдеров
             float totalColliderMass = _attachedColliders.Sum(c => c.MassDensity * c.Volume);
             
-            for (int i = 0; i < _attachedColliders.Length; i++) {
+            for (int i = 0; i < _attachedColliders.Count; i++) {
                 
                 // Вычисляем массу коллайдера исходя из Mass 
                 ISimpleCollider attachedCollider = _attachedColliders[i];
