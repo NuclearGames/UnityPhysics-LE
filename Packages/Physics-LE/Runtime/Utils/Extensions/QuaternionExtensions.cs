@@ -64,5 +64,29 @@ namespace NuclearGames.Physics_LE.Utils.Extensions {
         public static Quaternion New(in float w, in Vector3 vector) {
             return new Quaternion(vector.x, vector.y, vector.z, w);
         }
+
+        /// <summary>
+        /// Получает кватерниор разницы поротов от источника до цели
+        /// </summary>
+        public static Quaternion Difference(this Quaternion from, in Quaternion to) {
+            return Quaternion.Inverse(from) * to;
+        }
+        
+        /// <summary>
+        /// Получает кватерниор разницы поротов от источника до цели
+        /// </summary>
+        public static Quaternion RestoreFromDifference(this Quaternion to, in Quaternion difference) {
+            return to * Quaternion.Inverse(difference);
+        }
+
+        /// <summary>
+        /// Проверяет со степень сравнения float, что кватернионы одинаковы
+        /// </summary>
+        public static bool Approximately(in Quaternion q1, in Quaternion q2) {
+            return Mathf.Approximately(q1.w, q2.w) &&
+                   Mathf.Approximately(q1.x, q2.x) &&
+                   Mathf.Approximately(q1.y, q2.y) &&
+                   Mathf.Approximately(q1.z, q2.z);
+        }
     }
 }

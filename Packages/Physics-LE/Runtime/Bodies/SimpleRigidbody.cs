@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NuclearGames.Physics_LE.Colliders.Interfaces;
@@ -378,7 +377,7 @@ namespace NuclearGames.Physics_LE.Bodies {
                 Vector3 localColliderInertiaTensor = attachedCollider.GetLocalInertiaTensor(realMass);
                 
                 // Преобразуем локальный тензор инерции коллайдера в тензор тела
-                Matrix3x3 rotationMatrix = attachedCollider.LocalRotation.GetMatrix();
+                Matrix3x3 rotationMatrix = attachedCollider.ColliderToBodyRotation.GetMatrix();
                 Matrix3x3 rotationMatrixTranspose = rotationMatrix.GetTranspose();
                 rotationMatrixTranspose.MultiplyRow(0, localColliderInertiaTensor.x);
                 rotationMatrixTranspose.MultiplyRow(1, localColliderInertiaTensor.y);
@@ -386,7 +385,7 @@ namespace NuclearGames.Physics_LE.Bodies {
                 Matrix3x3 inertiaTensor = rotationMatrix * rotationMatrixTranspose;
                 
                 // Используем теорему параллельных прямых для переноса тензора инерции (w.r.t) колладера на тензор инерции тела
-                Vector3 offset = attachedCollider.LocalPosition - LocalCenterOfMass;
+                Vector3 offset = attachedCollider.ColliderCenterToBodyPosition - LocalCenterOfMass;
                 var sqrOffset = offset.sqrMagnitude;
                 Matrix3x3 offsetMatrix = new Matrix3x3(sqrOffset, 0, 0, 
                                                        0, sqrOffset, 0, 
