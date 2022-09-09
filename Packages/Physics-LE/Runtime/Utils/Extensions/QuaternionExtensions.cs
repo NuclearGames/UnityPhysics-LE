@@ -2,8 +2,32 @@
 using UnityEngine;
 
 namespace NuclearGames.Physics_LE.Utils.Extensions {
-    internal static class QuaternionExtensions {
-        internal static Matrix3x3 GetMatrix(this Quaternion value) {
+    public static class QuaternionExtensions {
+
+        /// <summary>
+        /// Добавляет к компонентам исходного кватерниона сответсвующие компоненты другого кватерниона
+        /// </summary>
+        public static void Add(ref Quaternion value, in Quaternion other) {
+            value.x += other.x;
+            value.y += other.y;
+            value.z += other.z;
+            value.w += other.w;
+        }
+        
+        /// <summary>
+        /// Умножает компоненты исходного кватерниона на величину
+        /// </summary>
+        public static void Scale(ref Quaternion value, in float multiplier) {
+            value.x *= multiplier;
+            value.y *= multiplier;
+            value.z *= multiplier;
+            value.w *= multiplier;
+        }
+        
+        /// <summary>
+        /// Возвращает матрицу поворота
+        /// </summary>
+        public static Matrix3x3 GetMatrix(this Quaternion value) {
             float nQ = value.x * value.x + value.y * value.y + value.z * value.z + value.w * value.w;
             float s = nQ > 0
                 ? 2 / nQ
@@ -32,6 +56,13 @@ namespace NuclearGames.Physics_LE.Utils.Extensions {
                                  xzs - wys,
                                  yzs + wxs,
                                  1f - xxs - yys);
+        }
+
+        /// <summary>
+        /// Перекладывает компоненты вектора на кватернион
+        /// </summary>
+        public static Quaternion New(in float w, in Vector3 vector) {
+            return new Quaternion(vector.x, vector.y, vector.z, w);
         }
     }
 }

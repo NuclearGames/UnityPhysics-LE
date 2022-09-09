@@ -10,11 +10,25 @@ namespace NuclearGames.Physics_LE.Bodies {
     /// <summary>
     /// Упрощенный вариант Rigidbody
     /// </summary>
-    public abstract class SimpleRigidbody : MonoBehaviour {
+    public class SimpleRigidbody {
 
 #region Public
 
 #region Fields
+
+        /// <summary>
+        /// Блокировка линейного движения по любой из осей
+        /// </summary>
+        public Vector3 LinearLockAxisFactors;
+        
+        /// <summary>
+        /// Блокировка вращения по любой из осей
+        /// </summary>
+        public Vector3 AngularLockAxisFactors;
+
+#endregion
+
+#region Properties
 
         /// <summary>
         /// Масса компонента
@@ -42,12 +56,32 @@ namespace NuclearGames.Physics_LE.Bodies {
                 }
             }
         }
+        
+        public Vector3 GlobalCenterOfMass => _transform.TransformPoint(LocalCenterOfMass);
+
+        /// <summary>
+        /// Линейная скорость
+        /// </summary>
+        public Vector3 LinearVelocity {
+            get => _linearVelocity;
+            set => _linearVelocity = value; 
+        }
+
+        /// <summary>
+        /// Угловая скорость
+        /// </summary>
+        public Vector3 AngularVelocity {
+            get => _angularVelocity;
+            set => _angularVelocity = value;
+        }
 
 #endregion
 
-#region Properties
+#region Constructors
 
-        public Vector3 GlobalCenterOfMass => transform.TransformPoint(LocalCenterOfMass);
+        public SimpleRigidbody(Transform transform) {
+            _transform = transform;
+        }
 
 #endregion
 
@@ -60,7 +94,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="localForce">Локальный вектор силы, применимый к телу</param>
         /// </summary>
         public void AddLocalForce(in Vector3 localForce) {
-            var worldForce = transform.TransformVector(localForce);
+            var worldForce = _transform.TransformVector(localForce);
             AddForce(in worldForce);
         }
 
@@ -82,7 +116,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="localForce">Локальный вектор силы, приложенный к телу</param>
         /// <param name="localPosition">Локальная точка, куда приложена сила</param>
         public void AddLocalForceAtLocalPosition(in Vector3 localForce, in Vector3 localPosition) {
-            var worldForce = transform.TransformVector(localForce);
+            var worldForce = _transform.TransformVector(localForce);
             AddForceAtLocalPosition(in worldForce, in localPosition);
         }
 
@@ -93,7 +127,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="force">Глобальный вектор силы, приложенный к телу</param>
         /// <param name="localPosition">Локальная точка, куда приложена сила</param>
         public void AddForceAtLocalPosition(in Vector3 force, in Vector3 localPosition) {
-            var worldPosition = transform.TransformPoint(localPosition);
+            var worldPosition = _transform.TransformPoint(localPosition);
             AddForceAtPosition(in force, in worldPosition);
         }
 
@@ -105,7 +139,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="localForce">Локальный вектор силы, приложенный к телу</param>
         /// <param name="position">Глобальная точка, куда приложена сила</param>
         public void AddLocalForceAtPosition(in Vector3 localForce, in Vector3 position) {
-            var worldForce = transform.TransformVector(localForce);
+            var worldForce = _transform.TransformVector(localForce);
             AddForceAtPosition(in worldForce, in position);
         }
 
@@ -129,7 +163,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <para>Вектор будет преображен в глобальную систему координат по средствам метода <see cref="Transform.TransformVector"/> (с учетом <see cref="Transform.Scale"/></para>
         /// <param name="localTorque">Локальный вектор силы, создающий момент вращения</param>
         public void AddLocalTorque(in Vector3 localTorque) {
-            var torque = transform.TransformVector(localTorque);
+            var torque = _transform.TransformVector(localTorque);
             AddTorque(in torque);
         }
         
@@ -142,6 +176,34 @@ namespace NuclearGames.Physics_LE.Bodies {
                 _lastExternalTorque = torque;
             }
         }
+        
+        /// <summary>
+        /// Вызываем цикл обновления физики
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        public void Update(float deltaTime) {
+            lock (_tickSynchronization) {
+                // Обновляем глобальный инвертированный тензор инерции
+                UpdateGlobalInertiaTensor();
+            
+                // Считаем скорости 
+                UpdateVelocities(in deltaTime, 
+                                 out Vector3 newLinearVelocity, out Vector3 newAngularVelocity);
+                
+                // Cчитаем позици и угол поворота
+                UpdatePositionAndRotation(in deltaTime, 
+                                          newLinearVelocity, newAngularVelocity, 
+                                          out Vector3 newPosition, out Quaternion newRotation);
+                
+                // Обновляем значения
+                UpdateBodyStates(in newLinearVelocity, in newAngularVelocity, in newPosition, in newRotation);
+
+            }
+        }
+
+        //ToDo: Цикл обновления:
+        // 4. Обновляем значения (updateBodiesState)
+        // 5. Сбарсываем все накопленные силы и моменты
 
 #endregion
 
@@ -167,6 +229,16 @@ namespace NuclearGames.Physics_LE.Bodies {
         private float _inverseMass;
 
         /// <summary>
+        /// Линейная скорость
+        /// </summary>
+        private Vector3 _linearVelocity;
+
+        /// <summary>
+        /// Угловая скорость
+        /// </summary>
+        private Vector3 _angularVelocity;
+
+        /// <summary>
         /// Локальный центр масс
         /// </summary>
         private Vector3 _localCenterOfMass;
@@ -181,7 +253,6 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// </summary>
         private Vector3 _lastExternalTorque;
 
-
         /// <summary>
         /// Инвертированный тенсор вращения тела в локальной системе координат
         /// </summary>
@@ -192,18 +263,56 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// </summary>
         private Matrix3x3 _inverseInertiaTensorGlobal;
 
+        private readonly Transform _transform;
         private ISimpleCollider[] _attachedColliders;
 
 #endregion
 
 #region Functions
-        
-        //ToDo: Цикл обновления:
-        // 0. все делаем в Lock
-        // 1. Обновляем глобальный инвертированный тензор инерции (UpdateGlobalInertiaTensor)
-        // 2. Считаем скорости (integrateRigidBodiesVelocities(deltaTime)) ToDo: там много промежуточных переменных, разобратсья
-        // 3. Считаем позции и угол поворота (integrateRigidBodiesPositions(deltaTime, false))
-        // 4. Обновляем значения (updateBodiesState)
+
+#region Update calculations
+
+        /// <summary>
+        /// Вычисляет новые значения скоростей
+        /// </summary>
+        private void UpdateVelocities(in float deltaTime, out Vector3 newLinearVelocity, out Vector3 newAngularVelocity) {
+            newLinearVelocity = _lastExternalForce;
+            newLinearVelocity.Scale(LinearLockAxisFactors);
+            Vector3Extensions.Scale(ref newLinearVelocity, _inverseMass * deltaTime);
+            Vector3Extensions.Add(ref newLinearVelocity, _linearVelocity);
+
+            newAngularVelocity = _inverseInertiaTensorGlobal * _lastExternalTorque;
+            newAngularVelocity.Scale(AngularLockAxisFactors);
+            Vector3Extensions.Scale(ref newAngularVelocity, in deltaTime);
+            Vector3Extensions.Add(ref newAngularVelocity, in _angularVelocity);
+        }
+
+        /// <summary>
+        /// Вычисляем новые позицию и поворот
+        /// </summary>
+        private void UpdatePositionAndRotation(in float deltaTime, 
+            in Vector3 newLinearVelocity, in Vector3 newAngularVelocity,
+            out Vector3 newPosition, out Quaternion newRotation) {
+
+            newPosition = newLinearVelocity;
+            Vector3Extensions.Scale(ref newPosition, in deltaTime);
+            //ToDo: В движке здесь за точку отсчета взят глобальный центр-масс.
+            // Но как мне видится, раз мы его считаем как локальный центр масс относительно tranform в мировой пространстве, 
+            //      то все должно быть норм
+            Vector3Extensions.Add(ref newPosition, _transform.position);
+
+            newRotation = _transform.rotation;
+            var tempRotation = QuaternionExtensions.New(0, in newAngularVelocity) * newRotation;
+            QuaternionExtensions.Scale(ref tempRotation, 0.5f * deltaTime);
+            QuaternionExtensions.Add(ref newRotation, in tempRotation);
+        }
+
+        private void UpdateBodyStates(in Vector3 newLinearVelocity, in Vector3 newAngularVelocity,
+            in Vector3 newPosition, in Quaternion newRotation) {
+            
+        }
+
+#endregion
 
 #region Inertia Tesnor
 
@@ -211,7 +320,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// Обновляет Инвертированный тенсор вращения тела в глобальный системе координат
         /// </summary>
         private void UpdateGlobalInertiaTensor() {
-            Matrix3x3 orientation = transform.rotation.GetMatrix();
+            Matrix3x3 orientation = _transform.rotation.GetMatrix();
             ComputeWorldInertiaTensorInverse(in orientation,
                                              in _inverseInertiaTensorLocal,
                                              out _inverseInertiaTensorGlobal);
@@ -234,7 +343,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// </summary>
         private void ComputeInertiaTensorLocal(out Vector3 localInertiaTensor) {
             Matrix3x3 tempLocalInertiaTensor = new Matrix3x3();
-
+            
             // Вычисляем общую массу коллайдеров
             float totalColliderMass = _attachedColliders.Sum(c => c.MassDensity * c.Volume);
             

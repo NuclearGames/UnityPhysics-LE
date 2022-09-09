@@ -152,6 +152,14 @@ namespace NuclearGames.Physics_LE.Utils.Mathematics {
             _c2 *= value;
         }
 
+        public static Vector3 operator *(Matrix3x3 matrix, Vector3 vector) {
+            return new Vector3(
+                matrix._a0 * vector.x + matrix._a1 * vector.y + matrix._a2 * vector.z,
+                matrix._b0 * vector.x + matrix._b1 * vector.y + matrix._b2 * vector.z,
+                matrix._c0 * vector.x + matrix._c1 * vector.y + matrix._c2 * vector.z
+            );
+        }
+        
         public static Matrix3x3 operator *(Matrix3x3 matrix1, Matrix3x3 matrix2) {
             return new Matrix3x3(
                 (matrix1._a0 * matrix2._a0) + (matrix1._a1 * matrix2._b0) + (matrix1._a2 * matrix2._c0),
@@ -183,8 +191,8 @@ namespace NuclearGames.Physics_LE.Utils.Mathematics {
                 (matrix1._c0 * matrix2._a2) + (matrix1._c1 * matrix2._b2) + (matrix1._c2 * matrix2._c2)
             );
         }
-        
-        
+
+
 #endregion
 
 #region Utils
