@@ -18,13 +18,13 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders2 {
         /// Возвращает локальный тензор инерции коллайдера
         /// <para>В силу того, что двумерное тело умеет вращаться только вокруг оси Z, остальные мы не считаем</para>
         /// </summary>
-        public override Vector3 GetLocalInertiaTensor(in float mass) {
+        private protected override Vector3 GetNoMassLocalInertiaTensor() {
             var size = _collider.size;
             float halfX = size.x / 2,
                   halfY = size.y / 2;
             float xSquare = halfX * halfX,
                   ySquare = halfY * halfY;
-            var factor = 1f / 3f * mass;
+            var factor = 1f / 3f;
 
             return new Vector3(0, 0, factor * (xSquare + ySquare));
         }
@@ -32,9 +32,9 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders2 {
         /// <summary>
         /// Вычисляет объем коллайдера
         /// </summary>
-        private protected override void UpdateVolume() {
+        private protected override float GetVolumeInternal() {
             var size = _collider.size;
-            _volume = size.x * size.y * FloatExtensions.ZERO;
+            return size.x * size.y * FloatExtensions.ZERO;
         }
     }
 }

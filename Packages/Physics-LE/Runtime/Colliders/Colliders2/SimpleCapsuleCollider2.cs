@@ -50,7 +50,7 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders2 {
         /// Возвращает локальный тензор инерции коллайдера
         /// <para>В силу того, что двумерное тело умеет вращаться только вокруг оси Z, остальные мы не считаем</para>
         /// </summary>
-        public override Vector3 GetLocalInertiaTensor(in float mass) {
+        private protected override Vector3 GetNoMassLocalInertiaTensor() {
             const float oneDiv3 = 1f / 3f;
             const float eightDivThreePi = 8f / Mathf.PI * oneDiv3;
             
@@ -70,18 +70,18 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders2 {
             float boxSquareZ = oneDiv3 * (xSquare + rSquare);
             float cylinderSquareZ = (rSquare / 2) + (eightDivThreePi * x * r) + xSquare;
 
-            float inertiaZ = mass * (boxFactor * boxSquareZ + cylinderFactor * cylinderSquareZ);
+            float inertiaZ = boxFactor * boxSquareZ + cylinderFactor * cylinderSquareZ;
             return new Vector3(0, 0, inertiaZ);
         }
 
-        private protected override void UpdateVolume() {
+        private protected override float GetVolumeInternal() {
             float radius = Radius,
                   width = HalfWidth * 2,
                   height = radius * 2,
                   deep = FloatExtensions.ZERO;
 
-            _volume = width * height * deep +
-                      radius * radius * Mathf.PI * deep;
+            return width * height * deep +
+                   radius * radius * Mathf.PI * deep;
         }
     }
 }

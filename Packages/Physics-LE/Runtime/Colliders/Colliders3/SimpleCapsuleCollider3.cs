@@ -27,7 +27,7 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders3 {
         /// <summary>
         /// Возвращает локальный тензор инерции коллайдера
         /// </summary>
-        public override Vector3 GetLocalInertiaTensor(in float mass) {
+        private protected override Vector3 GetNoMassLocalInertiaTensor() {
             var radius = _collider.radius;
             var radiusSquare = radius * radius;
             var height = Height;
@@ -44,12 +44,12 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders3 {
             float cylinderMoment = 0.25f * radiusSquare +
                                    (1.0f / 12.0f) * heightSquare;
 
-            float semiSphereCross = semiSphereFactor * mass * (sphereMoment + sphereOffset);
-            float cylinderCross = cylinderFactor * mass * cylinderMoment;
+            float semiSphereCross = semiSphereFactor * (sphereMoment + sphereOffset);
+            float cylinderCross = cylinderFactor * cylinderMoment;
             float cross = cylinderCross + semiSphereCross;
 
-            float semiSphereAlong = semiSphereFactor * mass * sphereMoment;
-            float cylinderAlong = cylinderFactor * mass * 0.25f * radiusSquareDouble;
+            float semiSphereAlong = semiSphereFactor * sphereMoment;
+            float cylinderAlong = cylinderFactor * 0.25f * radiusSquareDouble;
             float along = semiSphereAlong + cylinderAlong;
 
             return _collider.direction switch {
@@ -65,11 +65,11 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders3 {
         /// <summary>
         /// Вычисляет объем коллайдера
         /// </summary>
-        private protected override void UpdateVolume() {
+        private protected override float GetVolumeInternal() {
             var radius = _collider.radius;
             var radius2 = radius * radius;
 
-            _volume = Mathf.PI * radius2 * (4f / 3f * radius + Height);
+            return Mathf.PI * radius2 * (4f / 3f * radius + Height);
         }
 
 #endregion

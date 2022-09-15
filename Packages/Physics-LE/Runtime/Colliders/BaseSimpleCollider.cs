@@ -68,6 +68,7 @@ namespace NuclearGames.Physics_LE.Colliders {
                     UpdateToBodyRotation();
                     UpdateToBodyPosition();
                     UpdateVolume();
+                    _noMassLocalInertiaTensor = GetNoMassLocalInertiaTensor();
                 }
                 _baked = value;
             }
@@ -75,8 +76,10 @@ namespace NuclearGames.Physics_LE.Colliders {
         
         private Vector3 _colliderLocalCenterOffsetPosition;
         
+        private float _volume;
+        private Vector3 _noMassLocalInertiaTensor;
+        
         private bool _baked;
-        private protected float _volume;
         private Vector3 _centerToBodyPosition;
         private Quaternion _toBodyRotation;
 
@@ -88,11 +91,17 @@ namespace NuclearGames.Physics_LE.Colliders {
 
             Baked = baked;
         }
-        
+
         /// <summary>
         /// Возвращает локальный тензор инерции коллайдера
         /// </summary>
-        public abstract Vector3 GetLocalInertiaTensor(in float mass);
+        public Vector3 GetLocalInertiaTensor(in float mass) {
+            if (!Baked) {
+                _noMassLocalInertiaTensor = GetNoMassLocalInertiaTensor();
+            }
+            return _noMassLocalInertiaTensor * mass;
+        }
+
 
 #region Utils
 
@@ -116,7 +125,19 @@ namespace NuclearGames.Physics_LE.Colliders {
         /// <summary>
         /// Вычисляет объем коллайдера
         /// </summary>
-        private protected abstract void UpdateVolume();
+        private void UpdateVolume() {
+            _volume = GetVolumeInternal();
+        }
+
+        /// <summary>
+        /// Вычисляет объем коллайдера
+        /// </summary>
+        private protected abstract float GetVolumeInternal();
+        
+        /// <summary>
+        /// Возвращает локальный тензор инерции коллайдера без учета массы
+        /// </summary>
+        private protected abstract Vector3 GetNoMassLocalInertiaTensor();
 
 #endregion
     }

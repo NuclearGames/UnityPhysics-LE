@@ -19,17 +19,17 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders2 {
         /// Возвращает локальный тензор инерции коллайдера
         /// <para>В силу того, что двумерное тело умеет вращаться только вокруг оси Z, остальные мы не считаем</para>
         /// </summary>
-        public override Vector3 GetLocalInertiaTensor(in float mass) {
+        private protected override Vector3 GetNoMassLocalInertiaTensor() {
             var r = _collider.radius;
-            return new Vector3(0, 0, 0.5f * mass * r * r);
+            return new Vector3(0, 0, 0.5f * r * r);
         }
 
         /// <summary>
         /// Вычисляет объем коллайдера
         /// </summary>
-        private protected override void UpdateVolume() {
+        private protected override float GetVolumeInternal() {
             var r = _collider.radius;
-            _volume = Mathf.PI * r * r * FloatExtensions.ZERO;
+            return Mathf.PI * r * r * FloatExtensions.ZERO;
         }
     }
 }

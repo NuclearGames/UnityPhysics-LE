@@ -16,17 +16,17 @@ namespace NuclearGames.Physics_LE.Colliders.Colliders3 {
         /// <summary>
         /// Возвращает локальный тензор инерции коллайдера
         /// </summary>
-        public override Vector3 GetLocalInertiaTensor(in float mass) {
+        private protected override Vector3 GetNoMassLocalInertiaTensor() {
             var r = _collider.radius;
-            return new Vector3(0, 0, 0.4f * mass * r * r);
+            return new Vector3(0, 0, 0.4f * r * r);
         }
 
         /// <summary>
         /// Вычисляет объем коллайдера
         /// </summary>
-        private protected override void UpdateVolume() {
+        private protected override float GetVolumeInternal() {
             var r = _collider.radius;
-            _volume = 4 * Mathf.PI * r * r * r;
+            return 4 * Mathf.PI * r * r * r;
         }
     }
 }
