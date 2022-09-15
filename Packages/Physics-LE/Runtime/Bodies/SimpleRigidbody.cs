@@ -280,11 +280,13 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// Вычисляет новые значения скоростей
         /// </summary>
         private void UpdateVelocities(in float deltaTime, out Vector3 newLinearVelocity, out Vector3 newAngularVelocity) {
+            // v(t + dt) = v(t) + dt * m^-1 * F;
             newLinearVelocity = _lastExternalForce;
             newLinearVelocity.Scale(LinearLockAxisFactors);
             Vector3Extensions.Scale(ref newLinearVelocity, _inverseMass * deltaTime);
             Vector3Extensions.Add(ref newLinearVelocity, _linearVelocity);
 
+            // w(t + dt) = w(t) + dt * I^-1 * T;
             newAngularVelocity = _inverseInertiaTensorGlobal * _lastExternalTorque;
             newAngularVelocity.Scale(AngularLockAxisFactors);
             Vector3Extensions.Scale(ref newAngularVelocity, in deltaTime);
@@ -298,10 +300,12 @@ namespace NuclearGames.Physics_LE.Bodies {
             in Vector3 newLinearVelocity, in Vector3 newAngularVelocity,
             out Vector3 newGlobalCenterOfMassPosition, out Quaternion newRotation) {
 
+            // x(t + dt) = x(t) +          dt * v(t + dt);
             newGlobalCenterOfMassPosition = newLinearVelocity;
             Vector3Extensions.Scale(ref newGlobalCenterOfMassPosition, in deltaTime);
             Vector3Extensions.Add(ref newGlobalCenterOfMassPosition, GlobalCenterOfMass);
 
+            // Q(t + dt) = Q(t) + 0.5 * dt * w(t + dt) * Q(t);
             newRotation = _transform.rotation;
             var tempRotation = QuaternionExtensions.New(0, in newAngularVelocity) * newRotation;
             QuaternionExtensions.Scale(ref tempRotation, 0.5f * deltaTime);

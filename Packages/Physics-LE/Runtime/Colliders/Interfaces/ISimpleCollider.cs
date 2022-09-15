@@ -23,7 +23,7 @@ namespace NuclearGames.Physics_LE.Colliders.Interfaces {
         Quaternion ColliderToBodyRotation { get; }
 
         /// <summary>
-        /// Возвращает локальный тензор коллайдера
+        /// Возвращает локальный тензор инерции коллайдера
         /// </summary>
         Vector3 GetLocalInertiaTensor(in float mass);
     }

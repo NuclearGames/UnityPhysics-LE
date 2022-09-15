@@ -3,16 +3,24 @@ using NuclearGames.Physics_LE.Utils.Extensions;
 using UnityEngine;
 
 namespace NuclearGames.Physics_LE.Colliders {
-    internal abstract class BaseSimpleCollider : ISimpleCollider {
+    public abstract class BaseSimpleCollider : ISimpleCollider {
         /// <summary>
         /// Плотность материала коллайдера
         /// </summary>
         public float MassDensity => 1;
-        
+
         /// <summary>
         /// Объем коллайдера
         /// </summary>
-        public abstract float Volume { get; }
+        public float Volume {
+            get {
+                if (!Baked) {
+                    UpdateVolume();
+                }
+
+                return _volume;
+            }
+        }
 
         /// <summary>
         /// Позиция центральной точки коллайдера относительно тела
@@ -59,6 +67,7 @@ namespace NuclearGames.Physics_LE.Colliders {
                 if (value) {
                     UpdateToBodyRotation();
                     UpdateToBodyPosition();
+                    UpdateVolume();
                 }
                 _baked = value;
             }
@@ -67,6 +76,7 @@ namespace NuclearGames.Physics_LE.Colliders {
         private Vector3 _colliderLocalCenterOffsetPosition;
         
         private bool _baked;
+        private protected float _volume;
         private Vector3 _centerToBodyPosition;
         private Quaternion _toBodyRotation;
 
@@ -78,7 +88,10 @@ namespace NuclearGames.Physics_LE.Colliders {
 
             Baked = baked;
         }
-
+        
+        /// <summary>
+        /// Возвращает локальный тензор инерции коллайдера
+        /// </summary>
         public abstract Vector3 GetLocalInertiaTensor(in float mass);
 
 #region Utils
@@ -91,13 +104,19 @@ namespace NuclearGames.Physics_LE.Colliders {
         }
 
         /// <summary>
-        /// вЫчисляет и кэширует позицию коллайдера относительно тела
+        /// Вычисляет и кэширует позицию коллайдера относительно тела
         /// </summary>
         private void UpdateToBodyPosition() {
+            //ToDo: без скейла
             var globalDiffPositions = _colliderTransform.position - _bodyTransform.position;
             var diffRotation = _bodyTransform.rotation.Difference(_colliderTransform.rotation);
             _centerToBodyPosition = globalDiffPositions + diffRotation * _colliderLocalCenterOffsetPosition;
         }
+
+        /// <summary>
+        /// Вычисляет объем коллайдера
+        /// </summary>
+        private protected abstract void UpdateVolume();
 
 #endregion
     }

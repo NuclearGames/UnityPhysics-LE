@@ -35,5 +35,10 @@ namespace Tests.Scene {
             Debug.Log($"[Wc2]: {Transform.TransformPoint(colliderOffsetPosition)}"); 
             Debug.Log($"[Wr]: {globalDifference + diffRotation * colliderOffsetPosition}"); 
         }
+
+        [ContextMenu("Log Capsule direction")]
+        private void LogDirection() {
+            Debug.Log($"Direction: {GetComponent<CapsuleCollider>().direction}");
+        }
     }
 }
