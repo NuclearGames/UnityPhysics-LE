@@ -179,7 +179,7 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="torque">Вектор силы, создающий момент вращения</param>
         public void AddTorque(in Vector3 torque) {
             lock (_tickSynchronization) {
-                _lastExternalTorque = torque;
+                _lastExternalTorque += torque;
             }
         }
         
@@ -320,8 +320,8 @@ namespace NuclearGames.Physics_LE.Bodies {
         /// <param name="newGlobalCenterOfMassPosition"></param>
         /// <param name="newRotation"></param>
         private void UpdateBodyStates(in Vector3 newLinearVelocity, in Vector3 newAngularVelocity, in Vector3 newGlobalCenterOfMassPosition, Quaternion newRotation) {
-            Vector3Extensions.Add(ref _linearVelocity, in newLinearVelocity);
-            Vector3Extensions.Add(ref _angularVelocity, in newAngularVelocity);
+            _linearVelocity =  newLinearVelocity;
+            _angularVelocity = newAngularVelocity;
             
             newRotation.Normalize();
             _transform.SetPositionAndRotation(newGlobalCenterOfMassPosition - newRotation * LocalCenterOfMass, 
