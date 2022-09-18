@@ -1,11 +1,13 @@
-﻿using NuclearGames.Physics_LE.Bodies;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using NuclearGames.Physics_LE.Utils.Extensions;
 
 namespace Tests.Scene {
     internal sealed class PhysicsTestEnvironment : MonoBehaviour {
+        [SerializeField] private SimulationSceneLoader simulationSceneLoader;
+        [Space]
+        
         [SerializeField] private Rigidbody unityRigidbody;
-        [SerializeField] private PhysicsTestBody simpleBody;
 
         [Header("Assertions")]
         [SerializeField] private bool assertPosition = true;
@@ -14,28 +16,51 @@ namespace Tests.Scene {
         [Header("")]
         [SerializeField] private Vector3 vec3;
 
-        internal Rigidbody UnityRigidbody => unityRigidbody;
-        internal SimpleRigidbody SimpleRigidbody => simpleBody.Rigidbody;
+        internal Rigidbody AutoRigidbody => unityRigidbody;
+        internal Rigidbody ManualRigidbody { get; private set; }
+
+
+        private float _initialDeltaDistance;
+        private float _initialDeltaAngle;
+
+        private void Awake() {
+            simulationSceneLoader.CreateScene();
+        }
+
+        private void Start() {
+            ManualRigidbody = simulationSceneLoader.InstantiateUnityRigidbody(unityRigidbody.transform);
+            
+            unityRigidbody.transform.Translate(Vector3.left * 2);
+            unityRigidbody.gameObject.SetActive(true);
+            
+            _initialDeltaDistance = Vector3.Distance(ManualRigidbody.transform.position, AutoRigidbody.transform.position);
+            _initialDeltaAngle = Quaternion.Angle(ManualRigidbody.transform.rotation, AutoRigidbody.transform.rotation);
+        }
+
 
         /// <summary>
         /// Сравнивает позициии и вращения.
         /// </summary>
         private void FixedUpdate() {
+            const int bufferCapacity = 100;
+            
+            simulationSceneLoader.UpdatePhysics(Time.fixedDeltaTime);
+            
             if (assertPosition) {
-                Vector3 unityPos = UnityRigidbody.transform.position;
-                Vector3 simplePos = simpleBody.Transform.position;
+                Vector3 unityPos = ManualRigidbody.transform.position;
+                Vector3 simplePos = AutoRigidbody.transform.position;
                 float distance = Vector3.Distance(unityPos, simplePos);
 
-                Debug.Assert(Mathf.Approximately(distance, 0f),
-                    $"DeltaPosition = {distance}");
+                Debug.Assert(Approximately(distance, _initialDeltaDistance),
+                             $"DeltaPosition = {distance}");
             }
 
             if (assertRotation) {
-                Quaternion unityRot = UnityRigidbody.transform.rotation;
-                Quaternion simpleRot = simpleBody.Transform.rotation;
+                Quaternion unityRot = ManualRigidbody.transform.rotation;
+                Quaternion simpleRot = AutoRigidbody.transform.rotation;
                 float angle = Quaternion.Angle(unityRot, simpleRot);
 
-                Debug.Assert(Mathf.Approximately(angle, 0f),
+                Debug.Assert(Approximately(angle, _initialDeltaAngle),
                     $"DeltaAngle = {angle}");
 
                 //Debug.Assert(QuaternionExtensions.Approximately(unityRot, simpleRot),
@@ -60,26 +85,34 @@ namespace Tests.Scene {
 
         [ContextMenu("Set Velocity")]
         private void SetVelocity() {
-            UnityRigidbody.velocity = vec3;
-            SimpleRigidbody.LinearVelocity = vec3;
+            ManualRigidbody.velocity = vec3;
+            AutoRigidbody.velocity = vec3;
         }
 
         [ContextMenu("Add Force")]
         private void AddForce() {
-            UnityRigidbody.AddForce(vec3);
-            SimpleRigidbody.AddForce(vec3);
+            ManualRigidbody.AddForce(vec3);
+            AutoRigidbody.AddForce(vec3);
         }
 
         [ContextMenu("Set Angular Velocity")]
         private void SetAngularVelocity() {
-            UnityRigidbody.angularVelocity = vec3;
-            SimpleRigidbody.AngularVelocity = vec3;
+            unityRigidbody.angularVelocity = vec3;
+            //
+            ManualRigidbody.angularVelocity = vec3;
+            AutoRigidbody.angularVelocity = vec3;
         }
 
         [ContextMenu("Add Torque")]
         private void AddTorque() {
-            UnityRigidbody.AddTorque(vec3);
-            SimpleRigidbody.AddTorque(vec3);
+            ManualRigidbody.AddTorque(vec3);
+            AutoRigidbody.AddTorque(vec3);
+        }
+
+        private bool Approximately(float value1, float value2) {
+            const float scaler = 1E-03f; // 1E-06f;
+
+            return Mathf.Abs(value1 - value2) < scaler;
         }
     }
 }

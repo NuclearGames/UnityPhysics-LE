@@ -550,13 +550,14 @@ GameObject:
   m_Component:
   - component: {fileID: 905806523}
   - component: {fileID: 905806522}
+  - component: {fileID: 905806524}
   m_Layer: 0
   m_Name: SimpleObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &905806522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,8 +570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8569fd5a1cc877f4d9090841cfa0b41b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  externalRigidbody: {fileID: 1170228350}
-  externalCollider: {fileID: 1170228349}
+  externalCollider: {fileID: 905806524}
 --- !u!4 &905806523
 Transform:
   m_ObjectHideFlags: 0
@@ -579,7 +579,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 905806521}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 372575784}
@@ -587,6 +587,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &905806524
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905806521}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1010906015
 GameObject:
   m_ObjectHideFlags: 0
@@ -636,7 +649,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1170228349
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -773,6 +786,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1605506569}
   - component: {fileID: 1605506568}
+  - component: {fileID: 1605506570}
   m_Layer: 0
   m_Name: ENV
   m_TagString: Untagged
@@ -792,11 +806,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dc4bed1634aacd4589dc533e3e4ce6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulationSceneLoader: {fileID: 1605506570}
   unityRigidbody: {fileID: 1170228350}
   simpleBody: {fileID: 905806522}
   assertPosition: 1
   assertRotation: 1
-  vec3: {x: 0, y: 0, z: 0}
+  vec3: {x: 1, y: 0, z: 0}
 --- !u!4 &1605506569
 Transform:
   m_ObjectHideFlags: 0
@@ -811,6 +826,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1605506570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1605506567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66cfcb4299414597b72ffd036dab3da9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1653205639
 GameObject:
   m_ObjectHideFlags: 0

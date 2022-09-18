@@ -75,6 +75,8 @@ namespace NuclearGames.Physics_LE.Bodies {
             set => _angularVelocity = value;
         }
 
+        public Transform Transform => _transform;
+
 #endregion
 
 #region Constructors
@@ -308,6 +310,7 @@ namespace NuclearGames.Physics_LE.Bodies {
             // Q(t + dt) = Q(t) + 0.5 * dt * w(t + dt) * Q(t);
             newRotation = _transform.rotation;
             var tempRotation = QuaternionExtensions.New(0, in newAngularVelocity) * newRotation;
+            QuaternionExtensions.Scale(ref tempRotation, deltaTime);
             QuaternionExtensions.Scale(ref tempRotation, 0.5f * deltaTime);
             QuaternionExtensions.Add(ref newRotation, in tempRotation);
         }
