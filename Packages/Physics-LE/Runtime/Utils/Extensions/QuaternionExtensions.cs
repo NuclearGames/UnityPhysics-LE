@@ -67,6 +67,10 @@ namespace NuclearGames.Physics_LE.Utils.Extensions {
 
         /// <summary>
         /// Получает кватерниор разницы поротов от источника до цели
+        /// <para></para>
+        /// <para>M-final = M-rot * M-original</para>
+        /// <para>M-final * M-original^-1 = M-rot * (M-original * M-original^-1)</para>
+        /// <para>M-final * M-original^-1 = M-rot * E</para>
         /// </summary>
         public static Quaternion Difference(this Quaternion original, in Quaternion final) {
             return final * Quaternion.Inverse(original);
@@ -74,6 +78,10 @@ namespace NuclearGames.Physics_LE.Utils.Extensions {
         
         /// <summary>
         /// Получает кватерниор разницы поротов от источника до цели
+        /// <para></para>
+        /// <para>M-final = M-rot * M-original </para>
+        /// <para>M-rot^-1 * M-final = (M-rot^-1 * M-rot) * M-original </para>
+        /// <para>M-rot^-1 * M-final = E * M-original </para>
         /// </summary>
         public static Quaternion RestoreFromDifference(this Quaternion final, in Quaternion difference) {
             return Quaternion.Inverse(difference) * final;
