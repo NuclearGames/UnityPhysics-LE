@@ -23,7 +23,7 @@ namespace NuclearGames.Physics_LE.Tests.Tests.Runtime.Utils {
             
             Vector3Extensions.Add(ref v1, in v2);
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 3; i++) {
                 Assert.IsTrue(Mathf.Approximately(v1[i], v1Copy[i] + v2[i]));
             }
         }
@@ -36,7 +36,7 @@ namespace NuclearGames.Physics_LE.Tests.Tests.Runtime.Utils {
             
             Vector3Extensions.Scale(ref v1, in multiplier);
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 3; i++) {
                 Assert.IsTrue(Mathf.Approximately(v1[i], v1Copy[i] * multiplier));
             }
         }

@@ -68,15 +68,15 @@ namespace NuclearGames.Physics_LE.Utils.Extensions {
         /// <summary>
         /// Получает кватерниор разницы поротов от источника до цели
         /// </summary>
-        public static Quaternion Difference(this Quaternion from, in Quaternion to) {
-            return Quaternion.Inverse(from) * to;
+        public static Quaternion Difference(this Quaternion original, in Quaternion final) {
+            return final * Quaternion.Inverse(original);
         }
         
         /// <summary>
         /// Получает кватерниор разницы поротов от источника до цели
         /// </summary>
-        public static Quaternion RestoreFromDifference(this Quaternion to, in Quaternion difference) {
-            return to * Quaternion.Inverse(difference);
+        public static Quaternion RestoreFromDifference(this Quaternion final, in Quaternion difference) {
+            return Quaternion.Inverse(difference) * final;
         }
 
         /// <summary>
